@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Area of Circle</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        input[type="text"] { padding: 6px; font-size: 14px; }
+        input[type="submit"] { padding: 8px 20px; font-size: 14px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>Calculate Area of a Circle</h2>
+    <form action="AreaServlet" method="post">
+        <label for="radius">Enter Radius:</label><br><br>
+        <input type="text" id="radius" name="radius" placeholder="e.g. 7.5" required><br><br>
+        <input type="submit" value="Calculate Area">
+    </form>
+</body>
+</html>
