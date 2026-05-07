@@ -9,6 +9,7 @@
 1. [Standard Java Project (JDBC & Swing)](#1-standard-java-project-jdbc--swing)
 2. [Dynamic Web Project (Servlets & JSP)](#2-dynamic-web-project-servlets--jsp)
 3. [Maven / Spring Boot Project (Hibernate & REST APIs)](#3-maven--spring-boot-project-hibernate--rest-apis)
+4. [Theory for Practicals (A1–A10)](#4-theory-for-practicals-a1a10)
 
 ---
 
@@ -334,5 +335,563 @@ A7_MavenApp/
 
 ---
 
+## 4. Theory for Practicals (A1–A10)
+
+---
+
+### A1 — JDBC Select (`A1_JDBC_Select.java`)
+
+**Topic: Java Database Connectivity (JDBC)**
+
+**What is JDBC?**
+JDBC is a standard Java API (in `java.sql` and `javax.sql` packages) that allows Java programs to interact with relational databases. It provides a uniform interface regardless of the underlying database (MySQL, Oracle, PostgreSQL, etc.).
+
+**JDBC Architecture:**
+
+```
+Java Application
+      ↓
+  JDBC API (java.sql.*)
+      ↓
+  JDBC Driver Manager
+      ↓
+  JDBC Driver (e.g., mysql-connector-j)
+      ↓
+  Database (MySQL)
+```
+
+**Key Interfaces & Classes:**
+
+| Interface/Class | Purpose |
+|---|---|
+| `DriverManager` | Manages a list of database drivers. `getConnection()` establishes the connection. |
+| `Connection` | Represents an active connection to the database. Used to create statements. |
+| `Statement` | Executes static SQL queries. Vulnerable to SQL injection. |
+| `PreparedStatement` | Pre-compiled SQL with `?` placeholders. **Preferred** — prevents SQL injection and is faster for repeated queries. |
+| `ResultSet` | Holds the result of a `SELECT` query. Cursor-based — use `next()` to iterate rows. |
+| `SQLException` | Checked exception thrown for all database errors. |
+
+**JDBC Steps (The 5-Step Process):**
+
+1. **Load the driver** — `Class.forName("com.mysql.cj.jdbc.Driver")` (optional in modern JDBC 4.0+, auto-loaded).
+2. **Establish connection** — `DriverManager.getConnection(url, user, pass)`
+3. **Create statement** — `conn.prepareStatement(sql)`
+4. **Execute query** — `pstmt.executeQuery()` for SELECT, `pstmt.executeUpdate()` for INSERT/UPDATE/DELETE.
+5. **Close resources** — Use **try-with-resources** (Java 7+) to auto-close `Connection`, `PreparedStatement`, and `ResultSet`.
+
+**PreparedStatement vs Statement:**
+
+| Feature | Statement | PreparedStatement |
+|---|---|---|
+| SQL Injection | Vulnerable | Safe (parameterized) |
+| Performance | Compiled each time | Pre-compiled, cached |
+| Readability | String concatenation | Clean `?` placeholders |
+
+**JDBC URL Format:**
+```
+jdbc:mysql://hostname:port/database_name
+jdbc:mysql://localhost:3306/example_db
+```
+
+**Try-With-Resources:**
+Introduced in Java 7. Any class implementing `AutoCloseable` is automatically closed when the `try` block exits — even if an exception occurs. Eliminates the need for `finally` blocks to close resources.
+
+---
+
+### A2 — Swing Login (`A2_SwingLogin.java`)
+
+**Topic: Java Swing + JDBC Integration**
+
+**What is Swing?**
+Swing is a GUI widget toolkit in `javax.swing` package. It is part of Java Foundation Classes (JFC) and provides platform-independent, lightweight components built entirely in Java (unlike AWT which uses native OS widgets).
+
+**Swing vs AWT:**
+
+| Feature | AWT | Swing |
+|---|---|---|
+| Package | `java.awt` | `javax.swing` |
+| Components | Heavyweight (OS-native) | Lightweight (Java-rendered) |
+| Look & Feel | OS-dependent | Pluggable (consistent cross-platform) |
+| Components | `Button`, `TextField` | `JButton`, `JTextField` (prefixed with J) |
+
+**Key Swing Components Used:**
+
+| Component | Purpose |
+|---|---|
+| `JFrame` | Top-level window container |
+| `JTextField` | Single-line text input |
+| `JPasswordField` | Masked password input (shows dots) |
+| `JButton` | Clickable button |
+| `JLabel` | Display-only text |
+| `JOptionPane` | Pre-built dialog boxes (info, warning, error, input) |
+
+**Event Handling — Delegation Model:**
+Swing uses the **Observer/Listener pattern**:
+1. **Event Source** — the component that generates the event (e.g., `JButton`).
+2. **Event Object** — encapsulates event info (e.g., `ActionEvent`).
+3. **Event Listener** — interface that handles the event (e.g., `ActionListener`).
+
+```
+User clicks button → JButton creates ActionEvent → calls actionPerformed() on registered ActionListener
+```
+
+**ActionListener Interface:**
+```java
+public interface ActionListener {
+    void actionPerformed(ActionEvent e);
+}
+```
+Register with: `button.addActionListener(this)` (when class implements `ActionListener`).
+
+**Layout Managers:**
+- `FlowLayout` — left-to-right, row by row (default for `JPanel`)
+- `BorderLayout` — 5 regions: NORTH, SOUTH, EAST, WEST, CENTER (default for `JFrame`)
+- `GridLayout` — equal-sized grid cells
+- `GridBagLayout` — most flexible, cell-based with constraints (`GridBagConstraints`)
+
+**SwingUtilities.invokeLater():**
+Swing is **not thread-safe**. All GUI operations must run on the **Event Dispatch Thread (EDT)**. `invokeLater()` schedules the `Runnable` on the EDT.
+
+---
+
+### A3 — Swing Interest Calculator (`A3_SwingInterest.java`)
+
+**Topic: Swing Event Handling + Exception Handling**
+
+**Simple Interest Formula:**
+```
+SI = (P × R × T) / 100
+```
+Where: P = Principal, R = Rate of interest (%), T = Time in years.
+
+**NumberFormatException:**
+A runtime (unchecked) exception thrown by `Integer.parseInt()`, `Double.parseDouble()`, etc. when the input string is not a valid number.
+
+```java
+Double.parseDouble("abc");   // throws NumberFormatException
+Double.parseDouble("");      // throws NumberFormatException
+Double.parseDouble("12.5");  // returns 12.5 ✓
+```
+
+**JOptionPane Dialog Types:**
+
+| Method | Icon | Use Case |
+|---|---|---|
+| `showMessageDialog(parent, msg, title, INFORMATION_MESSAGE)` | ℹ️ | Success messages |
+| `showMessageDialog(parent, msg, title, WARNING_MESSAGE)` | ⚠️ | Validation warnings |
+| `showMessageDialog(parent, msg, title, ERROR_MESSAGE)` | ❌ | Error alerts |
+| `showInputDialog(parent, msg)` | ❓ | Prompt for input |
+| `showConfirmDialog(parent, msg)` | ❓ | Yes/No/Cancel |
+
+**Best Practice:**
+Always validate user input inside `actionPerformed()` with a try-catch for `NumberFormatException` before performing calculations. Display errors using `JOptionPane` rather than printing to console.
+
+---
+
+### A4 — Area Servlet (`A4_AreaServlet.java` + `index.html`)
+
+**Topic: Java Servlets**
+
+**What is a Servlet?**
+A Servlet is a Java class that runs on a **web server** (like Apache Tomcat) and handles HTTP requests and responses. It extends `HttpServlet` and lives on the **server side**.
+
+**Servlet Lifecycle (managed by the Servlet Container — Tomcat):**
+
+```
+1. Loading     → Container loads the Servlet class
+2. init()      → Called ONCE when the Servlet is first created (initialization)
+3. service()   → Called for EVERY request; dispatches to doGet()/doPost()
+4. destroy()   → Called ONCE when the server shuts down (cleanup)
+```
+
+| Method | HTTP Method | When Used |
+|---|---|---|
+| `doGet()` | GET | Fetching data, URL-based requests, bookmarkable |
+| `doPost()` | POST | Submitting forms, sending data (body is hidden from URL) |
+
+**GET vs POST:**
+
+| Feature | GET | POST |
+|---|---|---|
+| Data in | URL query string (`?key=val`) | Request body (hidden) |
+| Data limit | ~2KB (URL length limit) | No practical limit |
+| Security | Visible in URL, browser history | Not visible in URL |
+| Idempotent | Yes (safe to repeat) | No |
+| Use case | Search, navigation | Form submission, login |
+
+**@WebServlet Annotation:**
+Replaces the older `web.xml` mapping. Maps a URL pattern to the Servlet class:
+```java
+@WebServlet("/AreaServlet")  // accessible at http://localhost:8080/project/AreaServlet
+```
+
+**HttpServletRequest & HttpServletResponse:**
+- `request.getParameter("radius")` — reads form field value (always returns `String`).
+- `response.setContentType("text/html")` — tells browser to render as HTML.
+- `response.getWriter()` — returns a `PrintWriter` to write the HTML response.
+
+**HTML Form → Servlet Flow:**
+```
+Browser → index.html (form action="AreaServlet" method="post")
+       → HTTP POST to /AreaServlet
+       → Tomcat invokes doPost() on AreaServlet
+       → Servlet writes HTML response
+       → Browser displays result
+```
+
+---
+
+### A5 — Factorial JSP (`A5_factorial.jsp` + `index.html`)
+
+**Topic: JavaServer Pages (JSP)**
+
+**What is JSP?**
+JSP is a server-side technology that allows embedding Java code inside HTML pages. Behind the scenes, the **JSP container converts every JSP into a Servlet** before execution.
+
+**JSP Lifecycle:**
+```
+1. Translation  → JSP → Servlet .java file (first request only)
+2. Compilation   → .java → .class file
+3. Loading       → Class loaded into memory
+4. Execution     → _jspService() handles each request
+5. Destruction   → jspDestroy() on server shutdown
+```
+
+**JSP Scripting Elements:**
+
+| Element | Syntax | Purpose | Example |
+|---|---|---|---|
+| **Scriptlet** | `<% ... %>` | Java code block (logic) | `<% int x = 5; %>` |
+| **Expression** | `<%= ... %>` | Outputs a value (auto `out.print`) | `<%= x + 1 %>` |
+| **Declaration** | `<%! ... %>` | Declares class-level variables/methods | `<%! int count = 0; %>` |
+| **Directive** | `<%@ ... %>` | Page-level configuration | `<%@ page contentType="text/html" %>` |
+| **Comment** | `<%-- ... --%>` | Server-side comment (not sent to browser) | `<%-- hidden --%>` |
+
+**JSP Implicit Objects (available without declaration):**
+
+| Object | Type | Purpose |
+|---|---|---|
+| `request` | `HttpServletRequest` | Access form parameters |
+| `response` | `HttpServletResponse` | Set response headers |
+| `out` | `JspWriter` | Write output to response |
+| `session` | `HttpSession` | Store session-scoped data |
+| `application` | `ServletContext` | Application-wide data |
+
+**Servlet vs JSP:**
+
+| Feature | Servlet | JSP |
+|---|---|---|
+| Code style | Java class with HTML in `out.println()` | HTML file with Java in `<% %>` |
+| Best for | Business logic, controllers | Presentation, view layer |
+| Compilation | Compiled before deployment | Compiled on first request |
+| MVC Role | Controller | View |
+
+---
+
+### A6 — MVC Bookstore (`A6_Book.java`, `A6_BookView.java`, `A6_BookController.java`)
+
+**Topic: Model-View-Controller (MVC) Design Pattern**
+
+**What is MVC?**
+MVC is a **software architectural pattern** that separates an application into three interconnected components to achieve separation of concerns:
+
+```
+        User Input
+            ↓
+      ┌─────────────┐
+      │  CONTROLLER  │  ← Handles input, updates Model, selects View
+      └──────┬───────┘
+             │ updates          queries
+        ┌────▼────┐        ┌────────────┐
+        │  MODEL   │◄──────│    VIEW     │
+        │ (Data)   │──────►│ (Display)  │
+        └─────────┘        └────────────┘
+```
+
+| Component | Responsibility | Example in A6 |
+|---|---|---|
+| **Model** | Data + business logic. No knowledge of UI. | `Book.java` — POJO with fields, getters, setters |
+| **View** | Presentation layer. Displays data to user. | `BookView.java` — console `println` methods |
+| **Controller** | Mediator. Receives user actions, manipulates Model, updates View. | `BookController.java` — `addBook()`, `displayAll()` |
+
+**Why MVC?**
+1. **Separation of Concerns** — each component has one job.
+2. **Reusability** — the same Model can be used with a Swing View, a Web View, or a REST API.
+3. **Testability** — Model can be unit-tested independently of the UI.
+4. **Maintainability** — changing the View doesn't require changing the Model or Controller.
+
+**MVC in Web Frameworks:**
+- **Spring MVC:** Controller = `@Controller` class, View = Thymeleaf/JSP, Model = `@Entity` / POJO.
+- **Servlets + JSP:** Controller = Servlet, View = JSP, Model = JavaBean.
+
+---
+
+### A7 — Maven App (`A7_MavenApp.java`)
+
+**Topic: Apache Maven — Build & Dependency Management**
+
+**What is Maven?**
+Maven is a **build automation and dependency management tool** for Java projects. It uses a `pom.xml` (Project Object Model) file to define project configuration, dependencies, and build instructions.
+
+**Why Maven?**
+- **No manual JAR management** — declare dependencies in `pom.xml`, Maven downloads them from the Central Repository.
+- **Standardized project structure** — every Maven project follows the same directory layout.
+- **Build lifecycle** — compile, test, package, deploy with a single command.
+
+**Maven Project Structure:**
+```
+project/
+├── pom.xml                    ← Project config + dependencies
+├── src/
+│   ├── main/
+│   │   ├── java/              ← Source code
+│   │   └── resources/         ← Config files (hibernate.cfg.xml, etc.)
+│   └── test/
+│       └── java/              ← Test classes
+└── target/                    ← Build output (JAR/WAR)
+```
+
+**pom.xml Key Elements:**
+
+```xml
+<groupId>com.exam</groupId>       <!-- Organization/package -->
+<artifactId>A7_MavenApp</artifactId> <!-- Project name -->
+<version>1.0</version>            <!-- Version -->
+<packaging>jar</packaging>         <!-- Output type: jar or war -->
+
+<dependencies>
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.14.0</version>
+    </dependency>
+</dependencies>
+```
+
+**Maven Build Lifecycle Phases:**
+
+| Phase | Action |
+|---|---|
+| `validate` | Check project is correct |
+| `compile` | Compile source code |
+| `test` | Run unit tests |
+| `package` | Package into JAR/WAR |
+| `install` | Install to local `.m2` repository |
+| `deploy` | Upload to remote repository |
+
+**Maven Repository Hierarchy:**
+```
+1. Local Repository  (~/.m2/repository)  ← checked first
+2. Central Repository (repo.maven.apache.org) ← default remote
+3. Remote/Private Repositories ← if configured
+```
+
+**Key Maven Commands (via Eclipse):**
+- **Maven → Update Project** — re-downloads dependencies, syncs `pom.xml` with Eclipse.
+- **Force Update** — re-downloads even if cached (fixes corrupted downloads).
+
+---
+
+### A8 — Spring Task Controller (`A8_SpringTaskController.java`)
+
+**Topic: Spring Framework & Spring Boot**
+
+**What is Spring?**
+Spring is a comprehensive Java framework built around two core principles:
+1. **Inversion of Control (IoC)** — the framework creates and manages objects (beans), not the programmer.
+2. **Dependency Injection (DI)** — dependencies are automatically "injected" into classes (via constructor, setter, or field).
+
+**What is Spring Boot?**
+Spring Boot is a layer on top of Spring that eliminates boilerplate configuration:
+- **Auto-configuration** — detects dependencies and configures them automatically.
+- **Embedded server** — includes Tomcat; no need to deploy WAR files.
+- **Starter dependencies** — `spring-boot-starter-web` pulls in everything needed for web apps.
+
+**Spring MVC Request Flow:**
+
+```
+Browser → HTTP Request
+       → DispatcherServlet (Front Controller)
+       → @Controller method (matched by @GetMapping/@PostMapping)
+       → Returns view name (e.g., "tasks")
+       → ViewResolver → finds templates/tasks.html
+       → Rendered HTML → Browser
+```
+
+**Key Annotations:**
+
+| Annotation | Purpose |
+|---|---|
+| `@SpringBootApplication` | Marks the main class. Combines `@Configuration` + `@EnableAutoConfiguration` + `@ComponentScan`. |
+| `@Controller` | Marks a class as an MVC controller (returns **view names**). |
+| `@RestController` | Like `@Controller` + `@ResponseBody` (returns **data/JSON** directly). |
+| `@GetMapping("/path")` | Maps HTTP GET requests to a method. |
+| `@PostMapping("/path")` | Maps HTTP POST requests to a method. |
+| `@RequestParam` | Binds a query/form parameter to a method argument. |
+| `@PathVariable` | Binds a URL path segment (e.g., `/tasks/{id}`) to an argument. |
+| `@Autowired` | Injects a dependency (implicit in constructor injection since Spring 4.3). |
+
+**Spring Data JPA:**
+- `JpaRepository<Entity, IDType>` provides CRUD methods for free: `findAll()`, `findById()`, `save()`, `deleteById()`.
+- No implementation needed — Spring generates it at runtime.
+
+**`@Entity` (JPA):**
+Maps a Java class to a database table. Fields become columns. `@Id` marks the primary key, `@GeneratedValue` auto-generates IDs.
+
+---
+
+### A9 — Hibernate Main (`A9_HibernateMain.java`)
+
+**Topic: Hibernate ORM (Object-Relational Mapping)**
+
+**What is Hibernate?**
+Hibernate is a **Java ORM framework** that maps Java objects to database tables. Instead of writing SQL manually, you work with Java objects and Hibernate generates the SQL.
+
+**ORM Concept:**
+```
+Java Class   ←→  Database Table
+Object       ←→  Row
+Field        ←→  Column
+```
+
+**Hibernate Architecture:**
+
+```
+Java Application
+      ↓
+  Session API (persist, get, createQuery)
+      ↓
+  SessionFactory (thread-safe, one per DB, expensive to create)
+      ↓
+  JDBC (Hibernate generates SQL internally)
+      ↓
+  Database
+```
+
+**Key Hibernate Interfaces:**
+
+| Interface | Purpose |
+|---|---|
+| `Configuration` | Reads `hibernate.cfg.xml`, builds `SessionFactory` |
+| `SessionFactory` | Thread-safe factory for `Session` objects. Create **once** per application. |
+| `Session` | Single-threaded unit of work. Used to perform CRUD. **Not thread-safe** — open, use, close. |
+| `Transaction` | Wraps database operations in an atomic unit. Call `commit()` or `rollback()`. |
+
+**Hibernate CRUD Operations:**
+
+| Operation | Method | SQL Equivalent |
+|---|---|---|
+| Create | `session.persist(obj)` or `session.save(obj)` | `INSERT INTO ...` |
+| Read | `session.get(Class, id)` | `SELECT ... WHERE id = ?` |
+| Update | `session.merge(obj)` | `UPDATE ... SET ...` |
+| Delete | `session.remove(obj)` | `DELETE FROM ... WHERE id = ?` |
+
+**JPA Annotations for Entity Mapping:**
+
+| Annotation | Purpose |
+|---|---|
+| `@Entity` | Marks class as a persistent entity |
+| `@Table(name = "students")` | Maps to specific table name |
+| `@Id` | Marks the primary key field |
+| `@GeneratedValue(strategy = IDENTITY)` | Auto-increment primary key |
+| `@Column(name = "col", nullable = false)` | Maps field to specific column with constraints |
+
+**hibernate.cfg.xml Key Properties:**
+
+| Property | Purpose |
+|---|---|
+| `connection.driver_class` | JDBC driver class |
+| `connection.url` | Database URL |
+| `connection.username/password` | Credentials |
+| `dialect` | SQL dialect for the target DB (e.g., `MySQLDialect`) |
+| `hbm2ddl.auto` | Schema management: `update` (auto-create/alter tables), `create` (drop+create), `validate`, `none` |
+| `show_sql` | Print generated SQL to console |
+
+**Hibernate vs JDBC:**
+
+| Feature | JDBC | Hibernate |
+|---|---|---|
+| SQL | Write manually | Auto-generated |
+| Mapping | Manual `ResultSet` → Object | Automatic via annotations |
+| Caching | None | L1 (Session) + L2 (SessionFactory) |
+| Relationships | Manual JOINs | `@OneToMany`, `@ManyToOne`, etc. |
+| Boilerplate | High | Low |
+
+---
+
+### A10 — Employee REST Controller (`A10_EmployeeRestController.java`)
+
+**Topic: RESTful Web Services with Spring Boot**
+
+**What is REST?**
+REST (Representational State Transfer) is an **architectural style** for designing networked applications. It uses standard HTTP methods to perform CRUD operations on resources identified by URLs.
+
+**REST Principles:**
+1. **Client-Server** — separation of concerns between frontend and backend.
+2. **Stateless** — each request contains all information needed; server stores no client state.
+3. **Uniform Interface** — resources identified by URIs, manipulated through HTTP methods.
+4. **Resource-Based** — everything is a "resource" (e.g., `/api/employees`, `/api/employees/1`).
+
+**HTTP Methods → CRUD Mapping:**
+
+| HTTP Method | CRUD | Example URL | Purpose |
+|---|---|---|---|
+| `GET` | Read | `/api/employees` | Retrieve all employees |
+| `GET` | Read | `/api/employees/1` | Retrieve employee with ID 1 |
+| `POST` | Create | `/api/employees` | Add a new employee (data in body) |
+| `PUT` | Update | `/api/employees/1` | Update entire employee record |
+| `DELETE` | Delete | `/api/employees/1` | Remove employee with ID 1 |
+
+**HTTP Status Codes:**
+
+| Code | Meaning | When Used |
+|---|---|---|
+| `200 OK` | Success | GET, PUT |
+| `201 Created` | Resource created | POST |
+| `204 No Content` | Success, no body | DELETE |
+| `400 Bad Request` | Invalid input | Validation error |
+| `404 Not Found` | Resource doesn't exist | Wrong ID |
+| `500 Internal Server Error` | Server-side failure | Unhandled exception |
+
+**Spring Boot REST Annotations:**
+
+| Annotation | Purpose |
+|---|---|
+| `@RestController` | Marks class as REST controller (returns JSON/XML, not views) |
+| `@RequestMapping("/api/employees")` | Base URL path for the controller |
+| `@GetMapping` / `@GetMapping("/{id}")` | Handles GET requests |
+| `@PostMapping` | Handles POST requests |
+| `@PutMapping("/{id}")` | Handles PUT requests |
+| `@DeleteMapping("/{id}")` | Handles DELETE requests |
+| `@RequestBody` | Deserializes JSON request body into a Java object |
+| `@PathVariable` | Extracts value from URL (e.g., `{id}`) |
+
+**JSON Serialization:**
+Spring Boot uses **Jackson** library (auto-included) to convert Java objects ↔ JSON:
+```
+Java Object (Employee) → {"id":1,"name":"Ravi","department":"IT","salary":75000}
+```
+All public getters are serialized automatically. No extra configuration needed.
+
+**@RestController vs @Controller:**
+
+| Feature | @Controller | @RestController |
+|---|---|---|
+| Returns | View name (HTML page) | Data (JSON/XML) |
+| Needs | ViewResolver + template engine | Jackson (auto-included) |
+| Use case | Server-rendered web pages | REST APIs for mobile/SPA clients |
+
+**Testing REST APIs:**
+- **Browser** — only for GET requests (type URL in address bar).
+- **Postman / Insomnia** — full-featured GUI tool for all HTTP methods.
+- **curl** (command line):
+  ```bash
+  curl http://localhost:8080/api/employees                          # GET all
+  curl -X POST -H "Content-Type: application/json" \
+       -d '{"name":"Sneha","department":"HR","salary":50000}' \
+       http://localhost:8080/api/employees                          # POST new
+  ```
+
+---
+
 *Good luck on your exam. Read the error messages — they always tell you what's wrong.* 🚀
-# java
