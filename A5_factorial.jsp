@@ -1,4 +1,20 @@
-<%-- Place this file in: src/main/webapp/ (or WebContent/) alongside index.html --%>
+<%--
+  ============================================================
+   ECLIPSE SETUP — Dynamic Web Project
+  ============================================================
+
+   1. File → New → Dynamic Web Project → set Target Runtime to Tomcat
+   2. Place index_A5.html as "index.html" in:
+        → src/main/webapp/index.html   (newer Eclipse)
+        → WebContent/index.html        (older Eclipse)
+   3. Place THIS file as "factorial.jsp" in the SAME folder:
+        → src/main/webapp/factorial.jsp
+        → WebContent/factorial.jsp
+   4. Right-click project → Run As → Run on Server
+   5. Open: http://localhost:8080/YourProjectName/index.html
+
+  ============================================================
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html>

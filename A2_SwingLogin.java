@@ -1,3 +1,31 @@
+/*
+ * ============================================================
+ *  BEFORE RUNNING — Execute this SQL in MySQL terminal/Workbench:
+ * ============================================================
+ *
+ *  CREATE DATABASE IF NOT EXISTS example_db;
+ *  USE example_db;
+ *
+ *  CREATE TABLE IF NOT EXISTS users (
+ *      username VARCHAR(50) PRIMARY KEY,
+ *      password VARCHAR(50) NOT NULL
+ *  );
+ *
+ *  INSERT INTO users VALUES ('admin', 'admin123')
+ *      ON DUPLICATE KEY UPDATE username = username;
+ *
+ * ============================================================
+ *  ECLIPSE SETUP:
+ *  1. Create a Standard Java Project
+ *  2. Right-click project → Build Path → Add External JARs
+ *     → select mysql-connector-j-8.x.x.jar
+ *  3. Paste this file → Run As → Java Application
+ * ============================================================
+ *
+ *  TEST CREDENTIALS:  username = admin  |  password = admin123
+ * ============================================================
+ */
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -10,18 +38,9 @@ import java.sql.SQLException;
 
 public class A2_SwingLogin extends JFrame implements ActionListener {
 
-    private static final String URL  = "jdbc:mysql://localhost:3306/example_db";
+    private static final String URL     = "jdbc:mysql://localhost:3306/example_db";
     private static final String DB_USER = "root";
-    private static final String DB_PASS = "root";
-
-    /*
-     * Required table:
-     *   CREATE TABLE users (
-     *       username VARCHAR(50) PRIMARY KEY,
-     *       password VARCHAR(50) NOT NULL
-     *   );
-     *   INSERT INTO users VALUES ('admin', 'admin123');
-     */
+    private static final String DB_PASS = "root";  // ← Change to your MySQL password
 
     private JTextField     tfUsername;
     private JPasswordField pfPassword;

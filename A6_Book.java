@@ -1,3 +1,14 @@
+/*
+ * ============================================================
+ *  ECLIPSE SETUP:
+ *  1. Create a Standard Java Project
+ *  2. Paste ALL THREE files (A6_Book, A6_BookView, A6_BookController)
+ *     into the src/ folder of the SAME project
+ *  3. Run A6_BookController.java → Run As → Java Application
+ *  (No external JARs needed)
+ * ============================================================
+ */
+
 // ===== MODEL =====
 
 public class A6_Book {

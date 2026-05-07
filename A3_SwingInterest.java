@@ -1,3 +1,12 @@
+/*
+ * ============================================================
+ *  ECLIPSE SETUP:
+ *  1. Create a Standard Java Project
+ *  2. Paste this file → Run As → Java Application
+ *  (No external JARs needed — pure Swing)
+ * ============================================================
+ */
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;

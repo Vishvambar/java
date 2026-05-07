@@ -1,5 +1,24 @@
-// Place this file in:  src/main/java/  (Dynamic Web Project)
-// Place A4_index.html as index.html in:  src/main/webapp/  (or WebContent/)
+/*
+ * ============================================================
+ *  ECLIPSE SETUP — Dynamic Web Project
+ * ============================================================
+ *
+ *  1. File → New → Dynamic Web Project → set Target Runtime to Tomcat
+ *  2. Place index_A4.html as "index.html" in:
+ *       → src/main/webapp/index.html   (newer Eclipse)
+ *       → WebContent/index.html        (older Eclipse)
+ *  3. Place THIS file as "A4_AreaServlet.java" in:
+ *       → src/main/java/               (newer Eclipse)
+ *       → Java Resources/src/          (older Eclipse)
+ *  4. Right-click project → Run As → Run on Server
+ *  5. Open: http://localhost:8080/YourProjectName/index.html
+ *
+ * ============================================================
+ *  IMPORTANT — CHECK YOUR TOMCAT VERSION:
+ *    Tomcat 9  → use javax.servlet.*  (lines below are correct)
+ *    Tomcat 10 → change javax to jakarta on lines 22-27
+ * ============================================================
+ */
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -9,7 +28,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-// NOTE: For Tomcat 10+, replace javax.servlet.* with jakarta.servlet.*
+// *** FOR TOMCAT 10+, REPLACE the 5 javax imports above with: ***
+// import java.io.IOException;
+// import java.io.PrintWriter;
+// import jakarta.servlet.ServletException;
+// import jakarta.servlet.annotation.WebServlet;
+// import jakarta.servlet.http.HttpServlet;
+// import jakarta.servlet.http.HttpServletRequest;
+// import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/AreaServlet")
 public class A4_AreaServlet extends HttpServlet {
